@@ -196,6 +196,7 @@ class Evaluator:
                     query.name == "StructuredSearchSynapse"
                     and query.author_usernames is not None
                 ):
+                    bt.logging.info(f"[CST] HEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
                     bt.logging.info(f"[CST] llm_author_index_data_evaluation start")
                     llm_ranking_scores = self.llm_author_index_data_evaluation(response)
                     # mean quality score
@@ -203,6 +204,7 @@ class Evaluator:
                     rank_scores[i] = sum(llm_ranking_scores) / len(llm_ranking_scores)
                     bt.logging.info(f"[CST] llm_author_index_data_evaluation.llm_ranking_scores rank_scores[i]: {rank_scores[i]}")
                 else:
+                    bt.logging.info(f"[CST] HIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII")
                     bt.logging.info(f"[CST] llm_keyword_ranking_evaluation start")
                     llm_ranking_scores = self.llm_keyword_ranking_evaluation(
                         query_string, response
