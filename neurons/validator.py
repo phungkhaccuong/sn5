@@ -112,7 +112,8 @@ class Validator(BaseValidatorNeuron):
                 search_query.timeout = 90
             else:
                 # 80% chance to send index author data task with crawling and indexing
-                if random_number < 1.2:
+                #if random_number < 0.8:
+                if random_number < 0:
                     search_query = generate_author_index_task(
                         size=10,  # author index data size
                         num_authors=2,
@@ -126,7 +127,8 @@ class Validator(BaseValidatorNeuron):
                         f"[CST] Sending {search_query.name}: author index data task, authors:{search_query.author_usernames} to miner uids: {miner_uids}"
                     )
                 # 10% chance to send author search task without crawling
-                elif random_number < 0.9:
+                #elif random_number < 0.9:
+                elif random_number < 0:
                     search_query = generate_author_index_task(
                         size=10,  # author index data size
                         num_authors=2,
