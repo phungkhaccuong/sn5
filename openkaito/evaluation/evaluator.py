@@ -179,6 +179,8 @@ class Evaluator:
                     if doc["username"] in self.credit_twitter_author_usernames:
                         credit_username_count += 1
                     bt.logging.info(f"[CST] credit_username_count += 1: {credit_username_count}")
+
+                bt.logging.info(f"[CST] avg_ages[i] total ==: {avg_ages[i]}")
                 avg_ages[i] /= len(response)
                 bt.logging.info(f"[CST] avg_ages[i] /=: {avg_ages[i]}")
                 max_avg_age = max(max_avg_age, avg_ages[i])
