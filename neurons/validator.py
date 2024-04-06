@@ -112,7 +112,7 @@ class Validator(BaseValidatorNeuron):
                 search_query.timeout = 90
             else:
                 # 80% chance to send index author data task with crawling and indexing
-                if random_number < 0.8:
+                if random_number < 1.2:
                     search_query = generate_author_index_task(
                         size=10,  # author index data size
                         num_authors=2,
