@@ -149,6 +149,91 @@ class StructuredSearchEngine:
             bt.logging.error("recall error...", e)
             return []
 
+    def search_v1(self, search_query):
+        """
+        Structured search interface for this search engine
+
+        Args:
+        - search_query: A `StructuredSearchSynapse` or `SearchSynapse` object representing the search request sent by the validator.
+        """
+
+        result_size = search_query.size
+
+        recalled_items = self.recall_v1(
+            search_query=search_query, recall_size=self.recall_size
+        )
+
+        ranking_model = self.relevance_ranking_model
+
+        results = ranking_model.rank(search_query.query_string, recalled_items)
+
+        return results[:result_size]
+
+    def recall_v1(self, search_query, recall_size):
+        """
+        Structured recall interface for this search engine
+        """
+        query_string = search_query.query_string
+
+        es_query = {
+            "query": {
+                "bool": {
+                    "must": [],
+                }
+            },
+            "size": recall_size,
+        }
+
+        if search_query.query_string:
+            es_query["query"]["bool"]["must"].append(
+                {
+                    "query_string": {
+                        "query": query_string,
+                        "default_field": "text",
+                        "default_operator": "OR",
+                    }
+                }
+            )
+
+        if search_query.name == "StructuredSearchSynapse":
+            if search_query.author_usernames:
+                es_query["query"]["bool"]["must"].append(
+                    {
+                        "terms": {
+                            "username": search_query.author_usernames,
+                        }
+                    }
+                )
+
+            time_filter = {}
+            if search_query.earlier_than_timestamp:
+                time_filter["lte"] = search_query.earlier_than_timestamp
+            if search_query.later_than_timestamp:
+                time_filter["gte"] = search_query.later_than_timestamp
+            if time_filter:
+                es_query["query"]["bool"]["must"].append(
+                    {"range": {"created_at": time_filter}}
+                )
+
+        bt.logging.trace(f"es_query: {es_query}")
+
+        try:
+            response = self.search_client.search(
+                index="twitter",
+                body=es_query,
+            )
+            documents = response["hits"]["hits"]
+            results = []
+            for document in documents if documents else []:
+                doc = document["_source"]
+                results.append(self.twitter_doc_mapper(doc))
+            bt.logging.info(f"retrieved {len(results)} results")
+            bt.logging.trace(f"results: ")
+            return results
+        except Exception as e:
+            bt.logging.error("recall error...", e)
+            return []
+
     def crawl_and_index_data(self, query_string, author_usernames, max_size):
         """
         Crawls the data from the twitter crawler and indexes it in the elasticsearch database.

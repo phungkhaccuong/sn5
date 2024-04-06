@@ -121,7 +121,7 @@ class Miner(BaseMinerNeuron):
     ) -> StructuredSearchSynapse:
 
         start_time = datetime.now()
-        bt.logging.info(f"received StructuredSearchSynapse... timeout:{query.timeout}s ", query)
+        bt.logging.info(f"[CST] received StructuredSearchSynapse... timeout:{query.timeout}s ", query)
         if (
             query.version is not None
             and compare_version(query.version, get_version()) > 0
@@ -143,7 +143,10 @@ class Miner(BaseMinerNeuron):
 
         # disable crawling for structured search by default
         ranked_docs = self.structured_search_engine.search(query)
-        bt.logging.debug(f"{len(ranked_docs)} ranked_docs", ranked_docs)
+        bt.logging.debug(f"[CST] {len(ranked_docs)} ranked_docs", ranked_docs)
+        if len(ranked_docs) == 0:
+            ranked_docs = self.structured_search_engine.search_v1(query)
+            bt.logging.debug(f"[CST] {len(ranked_docs)} ranked_docs v1", ranked_docs)
         query.results = ranked_docs
         end_time = datetime.now()
         elapsed_time = (end_time - start_time).total_seconds()
