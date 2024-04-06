@@ -175,12 +175,10 @@ class Evaluator:
                         now - datetime.fromisoformat(doc["created_at"].rstrip("Z"))
                     ).total_seconds()
                     bt.logging.info(f"[CST] avg_ages[i] +=: {avg_ages[i]}")
-
-
+                    id_set.add(doc["id"])
                     if doc["username"] in self.credit_twitter_author_usernames:
                         credit_username_count += 1
                     bt.logging.info(f"[CST] credit_username_count += 1: {credit_username_count}")
-
                 avg_ages[i] /= len(response)
                 bt.logging.info(f"[CST] avg_ages[i] /=: {avg_ages[i]}")
                 max_avg_age = max(max_avg_age, avg_ages[i])
@@ -188,7 +186,6 @@ class Evaluator:
                 bt.logging.info(f"[CST] max_avg_age=: {max_avg_age}")
 
                 uniqueness_scores[i] = len(id_set) / size
-
                 bt.logging.info(f"[CST] uniqueness_scores[i]=: {uniqueness_scores[i]}")
                 credit_author_scores[i] = credit_username_count / size
                 bt.logging.info(f"[CST] credit_author_scores[i]=: {credit_author_scores[i]}")
