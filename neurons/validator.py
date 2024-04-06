@@ -99,8 +99,8 @@ class Validator(BaseValidatorNeuron):
         """
         try:
             miner_uids = get_random_uids(self, k=self.config.neuron.sample_size)
-
             random_number = random.random()
+            bt.logging.info(f"[CST] random_number: {random_number}")
             # mixed tasks, deprecated SearchSynapse
             if random_number < 0:
                 query_string = random_query(input_file="queries.txt")
@@ -123,7 +123,7 @@ class Validator(BaseValidatorNeuron):
                     search_query.timeout = 90
 
                     bt.logging.info(
-                        f"Sending {search_query.name}: author index data task, authors:{search_query.author_usernames} to miner uids: {miner_uids}"
+                        f"[CST] Sending {search_query.name}: author index data task, authors:{search_query.author_usernames} to miner uids: {miner_uids}"
                     )
                 # 10% chance to send author search task without crawling
                 elif random_number < 0.9:
@@ -134,7 +134,7 @@ class Validator(BaseValidatorNeuron):
                     search_query.timeout = 10
 
                     bt.logging.info(
-                        f"Sending {search_query.name}: author index data task, authors:{search_query.author_usernames} to miner uids: {miner_uids}"
+                        f"[CST] Sending {search_query.name}: author index data task (timeout = 10), authors:{search_query.author_usernames} to miner uids: {miner_uids}"
                     )
                 # 10% chance to send structured search task
                 else:
@@ -145,10 +145,10 @@ class Validator(BaseValidatorNeuron):
                     search_query.timeout = 90
 
                     bt.logging.info(
-                        f"Sending {search_query.name}: {search_query.query_string} to miner uids: {miner_uids}"
+                        f"[CST] Sending structured_search_task {search_query.name}: {search_query.query_string} to miner uids: {miner_uids}"
                     )
             bt.logging.trace(
-                f"miners: {[(uid, self.metagraph.axons[uid] )for uid in miner_uids]}"
+                f"[CST] miners: {[(uid, self.metagraph.axons[uid] )for uid in miner_uids]}"
             )
 
             # The dendrite client queries the network.
@@ -161,11 +161,11 @@ class Validator(BaseValidatorNeuron):
             )
 
             # Log the results for monitoring purposes.
-            bt.logging.debug(f"Received responses: {responses}")
+            bt.logging.debug(f"[CST] Received responses: {responses}")
 
             rewards = self.evaluator.evaluate(search_query, responses)
 
-            bt.logging.info(f"Scored responses: {rewards} for {miner_uids}")
+            bt.logging.info(f"[CST] Scored responses: {rewards} for {miner_uids}")
 
             self.update_scores(rewards, miner_uids)
 
