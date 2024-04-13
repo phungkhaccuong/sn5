@@ -61,8 +61,9 @@ def main():
         twitter_crawler=None,
     )
 
-    search_query = SearchSynapse(
+    search_query = StructuredSearchSynapse(
         query_string=args.query,
+        author_usernames=['HsakaTrades'],
         size=args.size,
     )
 
