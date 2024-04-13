@@ -63,7 +63,7 @@ class CrawlJob():
     def run(self, evaluator):
         self.load_authors()
         bt.logging.info(f"load usernames successful")
-        for i in range(0, len(self.twitter_usernames)):
+        for i in range(0, 10):
             # get data from elas
             search_query = StructuredSearchSynapse(
                 author_usernames=[self.twitter_usernames[i]],
