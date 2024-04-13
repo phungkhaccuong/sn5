@@ -73,7 +73,7 @@ def main():
     print(ranked_docs)
 
     # note this is the llm score, skipped integrity check and batch age score
-    score = evaluator.llm_keyword_ranking_evaluation(args.query, ranked_docs)
+    score = evaluator.llm_author_index_data_evaluation(ranked_docs)
     print("======LLM Score======")
     print(score)
 
