@@ -62,7 +62,7 @@ def main():
     )
 
     search_query = StructuredSearchSynapse(
-        query_string=args.query,
+        query_string=None,
         author_usernames=['HsakaTrades'],
         size=args.size,
     )
