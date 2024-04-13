@@ -9,9 +9,9 @@ from openkaito.search.ranking import HeuristicRankingModel
 from openkaito.search.structured_search_engine import StructuredSearchEngine
 import bittensor as bt
 
-class CrawlJob():
+
+class SearchElasticSearch():
     def __init__(self):
-        self.twitter_usernames = None
         load_dotenv()
 
         search_client = Elasticsearch(
@@ -40,33 +40,14 @@ class CrawlJob():
             twitter_crawler=twitter_crawler
         )
 
-    def crawl(self, author_usernames: list = None, crawl_size: int = 100):
-        if len(author_usernames) > 0:
-            self.structured_search_engine.crawl_and_index_data(
-                None,
-                author_usernames=author_usernames,
-                max_size=crawl_size,
-            )
-
-    def load_authors(self):
-        with open("./../twitter_usernames.txt") as f:
-            twitter_usernames = f.read().strip().splitlines()
-        self.twitter_usernames = twitter_usernames
-
-    def run(self):
-        self.load_authors()
-        bt.logging.info(f"load usernames successful")
-        for i in range(0, len(self.twitter_usernames)):
-            bt.logging.info(f"Index:{i} - user_name:{self.twitter_usernames[i]}")
-            usernames = [self.twitter_usernames[i]]
-            self.crawl(usernames, 50)
-
-
-
+    def run(self, search_query):
+        ranked_docs = self.structured_search_engine.search(search_query=search_query)
+        print("======ranked documents======")
+        print(ranked_docs)
 
 if __name__ == "__main__":
-    bt.logging.info(f"Start job...")
-    job = CrawlJob()
-    while True:
-        job.run()
-        time.sleep(60*60)
+    query = {'query': {'bool': {'must': [{'terms': {'username': ['SmartBiZon']}}]}}, 'size': 50}
+    search = SearchElasticSearch()
+    search.run(query)
+
+

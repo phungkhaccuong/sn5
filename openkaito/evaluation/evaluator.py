@@ -482,5 +482,111 @@ reason: It does not contain much meaningful information, just sentiment about so
             return [0]
 
 
+    def llm_author_index_data_evaluation_optimize(self, docs, retries=3):
+        if docs is None or len(docs) == 0:
+            return [0]
+        try:
+            newline = "\n"
+            prompt_docs = "\n\n".join(
+                [
+                    f"ItemId: {i}\nTime: {doc['created_at'].split('T')[0]}\nText: {doc['text'][:1000].replace(newline, '  ')}"
+                    for i, doc in enumerate(docs)
+                ]
+            )
+            bt.logging.info(f"[CST] llm_author_index_data_evaluation.prompt_docs: {prompt_docs}")
+            bt.logging.debug(
+                f"[CST] Querying LLM of author index data with docs:\n" + prompt_docs
+            )
+            output = self.llm_client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                response_format={"type": "json_object"},
+                messages=[
+                    {
+                        "role": "system",
+                        "content": """Below are the metrics and definations: 
+outdated: Time-sensitive information that is no longer current or relevant.
+insightless: Superficial content lacking depth and comprehensive insights.
+somewhat insightful: Offers partial insight but lacks depth and comprehensive coverage.
+Insightful: Comprehensive, insightful content suitable for informed decision-making.""",
+                    },
+                    {
+                        "role": "system",
+                        "content": f"Current Time: {datetime.now().isoformat().split('T')[0]}",
+                    },
+                    {
+                        "role": "system",
+                        "content": """
+Example 1:
+ItemId: 0
+Time: "2023-11-25" 
+Text: Also driving the charm is Blast's unique design: Depositors start earning yields on the transferred ether alongside BLAST points. "Blast natively participates in ETH staking, and the staking yield is passed back to the L2's users and dapps," the team said in a post Tuesday. 'We've redesigned the L2 from the ground up so that if you have 1 ETH in your wallet on Blast, over time, it grows to 1.04, 1.08, 1.12 ETH automatically."
+As such, Blast is invite-only as of Tuesday, requiring a code from invited users to gain access. Besides, the BLAST points can be redeemed starting in May.Blast raised over $20 million in a round led by Paradigm and Standard Crypto and is headed by pseudonymous figurehead @PacmanBlur, one of the co-founders of NFT marketplace Blur.
+@PacmanBlur said in a separate post that Blast was an extension of the Blur ecosystem, letting Blur users earn yields on idle assets while improving the technical aspects required to offer sophisticated NFT products to users.
+BLUR prices rose 12%% in the past 24 hours following the release of Blast
+
+
+Output:
+item_id: 0
+choice: insightful
+reason: It is contains insightful information about the Blast project.
+
+Example 2:
+ItemId: 1
+Time: "2024-03-19"
+Text: $SLERF to the moon!
+$BOME $SOL $MUMU $BONK $BOPE $WIF $NAP 🥳
+
+Output:
+item_id: 1
+choice: insightless
+reason: It does not contain much meaningful information, just sentiment about some tickers.
+""",
+                    },
+                    {
+                        "role": "user",
+                        "content": f"You will be given a list of documents with id and you have to rate them based on its information and insightfulness. The documents are as follows:\n"
+                        + prompt_docs,
+                    },
+                    {
+                        "role": "user",
+                        "content": f"Use the metric choices [outdated, insightless, somewhat insightful, insightful] to evaluate the text.",
+                    },
+                    {
+                        "role": "user",
+                        "content": "Must answer in JSON format of a list of choices with item ids for all the given items: "
+                        + "{'results': [{'item_id': the item id of choice, e.g. 0, 'reason': a very short explanation of your choice, 'choice':The choice of answer. }, {'item_id': 1, 'reason': explanation, 'choice': answer } , ... ] } ",
+                    },
+                ],
+                temperature=0,
+            )
+            bt.logging.debug(f"[CST] LLM response: {output.choices[0].message.content}")
+            bt.logging.debug(
+                f"[CST] LLM usage: {output.usage}, finish reason: {output.choices[0].finish_reason}"
+            )
+        except Exception as e:
+            bt.logging.error(f"Error while querying LLM: {e}")
+            bt.logging.debug(print_exception(type(e), e, e.__traceback__))
+            return 0
+
+        try:
+            result = json.loads(output.choices[0].message.content)
+            bt.logging.debug(f"LLM result: {result}")
+            for i, doc in enumerate(docs):
+                data = result[i]
+                doc['choice'] = data['choice']
+                doc['reason'] = data['reason']
+                bt.logging.info(f"[CST] final doc: {doc}")
+            return docs
+        except Exception as e:
+            bt.logging.error(f"Error while parsing LLM result: {e}, retrying...")
+            if retries > 0:
+                return self.llm_author_index_data_evaluation(docs, retries - 1)
+            else:
+                bt.logging.error(
+                    f"Failed to parse LLM result after retrying. Returning [0]."
+                )
+            return [0]
+
+
 def get_datetime(time_str: str):
     return datetime.fromisoformat(time_str.rstrip("Z"))

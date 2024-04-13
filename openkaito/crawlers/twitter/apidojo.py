@@ -94,6 +94,8 @@ class ApiDojoTwitterCrawler:
         if author_usernames:
             params["twitterHandles"] = author_usernames
 
+        bt.logging.trace(f"params: {params}")
+
         run = self.client.actor(self.actor_id).call(
             run_input=params, timeout_secs=self.timeout_secs
         )
