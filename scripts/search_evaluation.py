@@ -69,7 +69,7 @@ def main():
     print(search_query)
 
     ranked_docs = search_engine.search(search_query=search_query)
-    print("======ranked documents======")
+    print("======ranked documents  ======")
     print(ranked_docs)
 
     # note this is the llm score, skipped integrity check and batch age score
