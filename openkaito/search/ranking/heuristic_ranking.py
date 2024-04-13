@@ -25,6 +25,27 @@ class HeuristicRankingModel(AbstractRankingModel):
         return ranked_docs
 
     def compute_score(self, query, doc):
+        score = 0
+        now = datetime.now(timezone.utc)
+        text_length = len(doc["text"])
+        choice = doc["choice"]
+        if choice == "insightful":
+            score += 1
+        elif choice == "somewhat insightful":
+            score += 0.5
+        else:
+            score += 0.1
+
+        age = (
+                now - datetime.fromisoformat(doc["created_at"].rstrip("Z"))
+        ).total_seconds()
+        age_score = 1 / age;
+        score += age_score;
+        bt.logging.info(
+            f"DEFAULT:{score}")
+        return score
+
+    def compute_score(self, query, doc):
         if datetime.fromisoformat(doc["created_at"].rstrip("Z")).date() < date(2024, 1, 1):
             bt.logging.info(f"OUT_DATE:::{0.01}")
             return 0.01
