@@ -186,6 +186,7 @@ class StructuredSearchEngine:
             bt.logging.trace(f"results: {results}")
             return results
         except Exception as e:
+            print(f"ERROR: {e}")
             bt.logging.error("recall error...", e)
             return []
 
