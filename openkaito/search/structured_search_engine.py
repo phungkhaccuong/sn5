@@ -47,34 +47,6 @@ class StructuredSearchEngine:
             "reason": doc["reason"]
         }
 
-    # def init_indices(self):
-    #     """
-    #     Initializes the indices in the elasticsearch database.
-    #     """
-    #     index_name = "twitter"
-    #     if not self.search_client.indices.exists(index=index_name):
-    #         bt.logging.info("creating index...", index_name)
-    #         self.search_client.indices.create(
-    #             index=index_name,
-    #             body={
-    #                 "mappings": {
-    #                     "properties": {
-    #                         "id": {"type": "long"},
-    #                         "text": {"type": "text"},
-    #                         "created_at": {"type": "date"},
-    #                         "username": {"type": "keyword"},
-    #                         "url": {"type": "text"},
-    #                         "quote_count": {"type": "long"},
-    #                         "reply_count": {"type": "long"},
-    #                         "retweet_count": {"type": "long"},
-    #                         "favorite_count": {"type": "long"},
-    #                         "choice": {"type": "text"},
-    #                         "reason": {"type": "text"}
-    #                     }
-    #                 }
-    #             },
-    #         )
-
     def init_indices(self):
         """
         Initializes the indices in the elasticsearch database.
@@ -85,15 +57,10 @@ class StructuredSearchEngine:
             self.search_client.indices.create(
                 index=index_name,
                 body={
-                                    "mappings": {
+                    "mappings": {
                         "properties": {
                             "id": {"type": "long"},
-                            "text": {
-                                "type": "text",
-                                "fields": {
-                                    "length": {"type": "long"}  # Change the type to long
-                                }
-                            },
+                            "text": {"type": "text"},
                             "created_at": {"type": "date"},
                             "username": {"type": "keyword"},
                             "url": {"type": "text"},
@@ -104,9 +71,10 @@ class StructuredSearchEngine:
                             "choice": {"type": "text"},
                             "reason": {"type": "text"}
                         }
-    }
+                    }
                 },
             )
+
 
     def search(self, search_query):
         """
