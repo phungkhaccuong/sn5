@@ -7,6 +7,7 @@ import openai
 from dotenv import load_dotenv
 from elasticsearch import Elasticsearch
 
+from openkaito.crawlers.twitter.apidojo import ApiDojoTwitterCrawler
 from openkaito.crawlers.twitter.microworlds import MicroworldsTwitterCrawler
 from openkaito.evaluation.evaluator import Evaluator
 from openkaito.protocol import SearchSynapse, SortType, StructuredSearchSynapse
@@ -39,8 +40,8 @@ def main():
     )
 
     # # for integrity check
-    # twitter_crawler = ApifyTwitterCrawler(os.environ["APIFY_API_KEY"])
-    evaluator = Evaluator(llm_client, None)
+    twitter_crawler = ApiDojoTwitterCrawler(os.environ["APIFY_API_KEY"])
+    evaluator = Evaluator(llm_client, twitter_crawler)
 
     search_client = Elasticsearch(
         os.environ["ELASTICSEARCH_HOST"],
@@ -77,6 +78,7 @@ def main():
     print("======LLM Score   ======")
     print(score)
 
+    evaluator.evaluate(search_query, ranked_docs);
 
 if __name__ == "__main__":
     main()

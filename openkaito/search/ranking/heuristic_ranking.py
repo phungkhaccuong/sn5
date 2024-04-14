@@ -25,46 +25,48 @@ class HeuristicRankingModel(AbstractRankingModel):
         return ranked_docs
 
     def compute_score(self, query, doc):
-        print(f"[DOC]::: {doc}")
-        score = 0
-        now = datetime.now(timezone.utc)
-        text_length = len(doc["text"])
-        choice = doc["choice"]
-        if choice == "insightful":
-            score += 1
-        elif choice == "somewhat insightful":
-            score += 0.5
+        if datetime.fromisoformat(doc["created_at"].rstrip("Z")).date() < date(2024, 1, 1):
+            bt.logging.info(f"OUT_DATE:::{0.01}")
+            return 0.01
+        result = self.get_amend(doc)
+        bt.logging.info(f"[compute_score]:{result}")
+        if (result is not None) and ((result['flattened_words'] < 21) or (result['sentences'] < 2)):
+            bt.logging.info(f"OPTIMIZE:::{0.01 + (result['flattened_words'] / 10000)}")
+            return 0.01 + (result['flattened_words'] / 10000)
         else:
-            score += 0.1
-
-        age = (
-                now - datetime.fromisoformat(doc["created_at"].rstrip("Z"))
-        ).total_seconds()
-        age_score = 1 / age
-        score += age_score
-        print(
-            f"DEFAULT:{score}")
-        return score
+            now = datetime.now(timezone.utc)
+            text_length = len(doc["text"])
+            age = (
+                    now - datetime.fromisoformat(doc["created_at"].rstrip("Z"))
+            ).total_seconds()
+            bt.logging.info(f"DEFAULT:{self.length_weight * self.text_length_score(text_length) + self.age_weight * self.age_score(age)}")
+            return self.length_weight * self.text_length_score(
+                text_length
+            ) + self.age_weight * self.age_score(age)
 
     # def compute_score(self, query, doc):
-    #     if datetime.fromisoformat(doc["created_at"].rstrip("Z")).date() < date(2024, 1, 1):
-    #         bt.logging.info(f"OUT_DATE:::{0.01}")
-    #         return 0.01
-    #     result = self.get_amend(doc)
-    #     bt.logging.info(f"[compute_score]:{result}")
-    #     if (result is not None) and ((result['flattened_words'] < 21) or (result['sentences'] < 2)):
-    #         bt.logging.info(f"OPTIMIZE:::{0.01 + (result['flattened_words'] / 10000)}")
-    #         return 0.01 + (result['flattened_words'] / 10000)
+    #     print(f"[DOC]::: {doc}")
+    #     score = 0
+    #     now = datetime.now(timezone.utc)
+    #     text_length = len(doc["text"])
+    #     choice = doc["choice"]
+    #     if choice == "insightful":
+    #         score += 1
+    #     elif choice == "somewhat insightful":
+    #         score += 0.5
     #     else:
-    #         now = datetime.now(timezone.utc)
-    #         text_length = len(doc["text"])
-    #         age = (
-    #                 now - datetime.fromisoformat(doc["created_at"].rstrip("Z"))
-    #         ).total_seconds()
-    #         bt.logging.info(f"DEFAULT:{self.length_weight * self.text_length_score(text_length) + self.age_weight * self.age_score(age)}")
-    #         return self.length_weight * self.text_length_score(
-    #             text_length
-    #         ) + self.age_weight * self.age_score(age)
+    #         score += 0.1
+    #
+    #     age = (
+    #             now - datetime.fromisoformat(doc["created_at"].rstrip("Z"))
+    #     ).total_seconds()
+    #     age_score = 1 / age
+    #     score += age_score
+    #     print(
+    #         f"DEFAULT:{score}")
+    #     return score
+
+
 
     def text_length_score(self, text_length):
         return math.log(text_length + 1) / 10
