@@ -452,7 +452,6 @@ reason: It does not contain much meaningful information, just sentiment about so
                 ],
                 temperature=0,
             )
-            bt.logging.debug(f"[CST] LLM response: {output.choices[0].message.content}")
             bt.logging.debug(
                 f"[CST] LLM usage: {output.usage}, finish reason: {output.choices[0].finish_reason}"
             )
