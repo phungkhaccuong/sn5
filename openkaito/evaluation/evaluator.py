@@ -386,7 +386,7 @@ reason: It is not directly related to Arbitrum as it just uses the arbitrum app.
                     for i, doc in enumerate(docs)
                 ]
             )
-            bt.logging.info(f"[CST] llm_author_index_data_evaluation.prompt_docs: {prompt_docs}")
+
             bt.logging.debug(
                 f"[CST] Querying LLM of author index data with docs:\n" + prompt_docs
             )
