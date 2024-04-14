@@ -569,12 +569,13 @@ reason: It does not contain much meaningful information, just sentiment about so
 
         try:
             result = json.loads(output.choices[0].message.content)
-            bt.logging.debug(f"LLM result: {result}")
+            print(f"LLM result: {result}")
             for i, doc in enumerate(docs):
                 data = result[i]
+                print(f"LLM data: {data}")
                 doc['choice'] = data['choice']
                 doc['reason'] = data['reason']
-                bt.logging.info(f"[CST] final doc: {doc}")
+                print(f"[CST] final doc: {doc}")
             return docs
         except Exception as e:
             bt.logging.error(f"Error while parsing LLM result: {e}, retrying...")
