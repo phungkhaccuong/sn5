@@ -142,9 +142,15 @@ class StructuredSearchEngine:
                 )
 
         es_query['sort'] = [
-            {"_script": {"type": "number", "script": "doc['text'].size()"}},  # Sort by text length
-            {"created_at": {"order": "asc"}}  # Then sort by created_at field in ascending order
-        ]
+        {"_script": {
+            "type": "number",
+            "script": {
+                "source": "doc['text.keyword'].value.length()",
+                "lang": "painless"
+            }
+        }},
+        {"created_at": {"order": "asc"}}
+    ]
         bt.logging.trace(f"es_query: {es_query}")
 
         try:
