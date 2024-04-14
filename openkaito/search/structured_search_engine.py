@@ -141,16 +141,7 @@ class StructuredSearchEngine:
                     {"range": {"created_at": time_filter}}
                 )
 
-        es_query['sort'] = [
-        {"_script": {
-            "type": "number",
-            "script": {
-                "source": "doc['text.keyword'].value.length()",
-                "lang": "painless"
-            }
-        }},
-        {"created_at": {"order": "asc"}}
-    ]
+
 
         es_query = {
                         "query": {
@@ -163,7 +154,7 @@ class StructuredSearchEngine:
                                 "script": {
                                     "source": """
                                         if (doc.containsKey('text') && doc['text.keyword'].size() > 0) {
-                                            return doc['text.keyword'].value.length();
+                                            return doc['text.keyword'].size();
                                         } else {
                                             return 0; // Or any default value you prefer
                                         }
@@ -319,28 +310,7 @@ class StructuredSearchEngine:
                 es_query["query"]["bool"]["must"].append(
                     {"range": {"created_at": time_filter}}
                 )
-        es_query = {
-                        "query": {
-                            "match_all": {}  # You can specify your query here if needed
-                        },
-                        "sort": [
-                            {"created_at": "asc"},  # Sort by created_at field in ascending order
-                            {"_script": {  # Sort by the length of the 'text' field using script
-                                "type": "number",
-                                "script": {
-                                    "source": """
-                                        if (doc.containsKey('text')) {
-                                            return doc['text.keyword'].length();
-                                        } else {
-                                            return 0; // Or any default value you prefer
-                                        }
-                                    """,
-                                    "lang": "painless"
-                                },
-                                "order": "asc"  # You can change the order here as needed
-                            }}
-                        ]
-                    }
+
         bt.logging.trace(f"es_query: {es_query}")
 
         try:
