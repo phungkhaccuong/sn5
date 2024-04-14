@@ -47,6 +47,34 @@ class StructuredSearchEngine:
             "reason": doc["reason"]
         }
 
+    # def init_indices(self):
+    #     """
+    #     Initializes the indices in the elasticsearch database.
+    #     """
+    #     index_name = "twitter"
+    #     if not self.search_client.indices.exists(index=index_name):
+    #         bt.logging.info("creating index...", index_name)
+    #         self.search_client.indices.create(
+    #             index=index_name,
+    #             body={
+    #                 "mappings": {
+    #                     "properties": {
+    #                         "id": {"type": "long"},
+    #                         "text": {"type": "text"},
+    #                         "created_at": {"type": "date"},
+    #                         "username": {"type": "keyword"},
+    #                         "url": {"type": "text"},
+    #                         "quote_count": {"type": "long"},
+    #                         "reply_count": {"type": "long"},
+    #                         "retweet_count": {"type": "long"},
+    #                         "favorite_count": {"type": "long"},
+    #                         "choice": {"type": "text"},
+    #                         "reason": {"type": "text"}
+    #                     }
+    #                 }
+    #             },
+    #         )
+
     def init_indices(self):
         """
         Initializes the indices in the elasticsearch database.
@@ -58,19 +86,24 @@ class StructuredSearchEngine:
                 index=index_name,
                 body={
                     "mappings": {
-                        "properties": {
-                            "id": {"type": "long"},
-                            "text": {"type": "text"},
-                            "created_at": {"type": "date"},
-                            "username": {"type": "keyword"},
-                            "url": {"type": "text"},
-                            "quote_count": {"type": "long"},
-                            "reply_count": {"type": "long"},
-                            "retweet_count": {"type": "long"},
-                            "favorite_count": {"type": "long"},
-                            "choice": {"type": "text"},
-                            "reason": {"type": "text"}
-                        }
+                                "properties": {
+                                    "id": {"type": "long"},
+                                    "text": {
+                                        "type": "text",
+                                        "fields": {
+                                            "length": {"type": "integer"}  # Multi-field for text length
+                                        }
+                                    },
+                                    "created_at": {"type": "date"},
+                                    "username": {"type": "keyword"},
+                                    "url": {"type": "text"},
+                                    "quote_count": {"type": "long"},
+                                    "reply_count": {"type": "long"},
+                                    "retweet_count": {"type": "long"},
+                                    "favorite_count": {"type": "long"},
+                                    "choice": {"type": "text"},
+                                    "reason": {"type": "text"}
+                                }
                     }
                 },
             )
@@ -141,30 +174,6 @@ class StructuredSearchEngine:
                     {"range": {"created_at": time_filter}}
                 )
 
-
-
-        es_query = {
-                        "query": {
-                            "match_all": {}  # You can specify your query here if needed
-                        },
-                        "sort": [
-                            {"created_at": "asc"},  # Sort by created_at field in ascending order
-                            {"_script": {  # Sort by the length of the 'text' field using script
-                                "type": "number",
-                                "script": {
-                                    "source": """
-                                        if (doc.containsKey('text') && doc['text.keyword'].size() > 0) {
-                                            return doc['text.keyword'].size();
-                                        } else {
-                                            return 0; // Or any default value you prefer
-                                        }
-                                    """,
-                                    "lang": "painless"
-                                },
-                                "order": "asc"  # You can change the order here as needed
-                            }}
-                        ]
-                    }
 
         bt.logging.trace(f"es_query: {es_query}")
 
