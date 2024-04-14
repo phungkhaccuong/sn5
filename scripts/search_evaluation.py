@@ -18,7 +18,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Miner Search Ranking Evaluation")
     parser.add_argument("--query", type=str, default="BTC", help="query string")
     parser.add_argument(
-        "--size", type=int, default=5, help="size of the response items"
+        "--size", type=int, default=10, help="size of the response items"
     )
     # parser.add_argument('--crawling', type=bool, default=False, action='store_true', help='crawling data before search')
 
