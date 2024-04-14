@@ -85,26 +85,26 @@ class StructuredSearchEngine:
             self.search_client.indices.create(
                 index=index_name,
                 body={
-                    "mappings": {
-                                "properties": {
-                                    "id": {"type": "long"},
-                                    "text": {
-                                        "type": "text",
-                                        "fields": {
-                                            "length": {"type": "integer"}  # Multi-field for text length
-                                        }
-                                    },
-                                    "created_at": {"type": "date"},
-                                    "username": {"type": "keyword"},
-                                    "url": {"type": "text"},
-                                    "quote_count": {"type": "long"},
-                                    "reply_count": {"type": "long"},
-                                    "retweet_count": {"type": "long"},
-                                    "favorite_count": {"type": "long"},
-                                    "choice": {"type": "text"},
-                                    "reason": {"type": "text"}
+                                    "mappings": {
+                        "properties": {
+                            "id": {"type": "long"},
+                            "text": {
+                                "type": "text",
+                                "fields": {
+                                    "length": {"type": "long"}  # Change the type to long
                                 }
-                    }
+                            },
+                            "created_at": {"type": "date"},
+                            "username": {"type": "keyword"},
+                            "url": {"type": "text"},
+                            "quote_count": {"type": "long"},
+                            "reply_count": {"type": "long"},
+                            "retweet_count": {"type": "long"},
+                            "favorite_count": {"type": "long"},
+                            "choice": {"type": "text"},
+                            "reason": {"type": "text"}
+                        }
+    }
                 },
             )
 
