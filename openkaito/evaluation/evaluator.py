@@ -569,6 +569,7 @@ reason: It does not contain much meaningful information, just sentiment about so
 
         try:
             result = json.loads(output.choices[0].message.content)
+            result = result['results']
             print(f"LLM result: {result}")
             for i, doc in enumerate(docs):
                 data = result[i]
