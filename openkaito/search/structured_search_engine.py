@@ -93,7 +93,7 @@ class StructuredSearchEngine:
 
         results = ranking_model.rank(search_query.query_string, recalled_items)
 
-        return results[:10]
+        return results[:result_size]
 
     def recall(self, search_query, recall_size):
         """
