@@ -151,7 +151,26 @@ class StructuredSearchEngine:
         }},
         {"created_at": {"order": "asc"}}
     ]
+
+        es_query = {
+            "query": {
+                "match_all": {}  # You can specify your query here if needed
+            },
+            "sort": [
+                {"created_at": "asc"},  # Sort by created_at field in ascending order
+                {"_script": {  # Sort by the length of the 'text' field using script
+                    "type": "number",
+                    "script": {
+                        "source": "doc['text.keyword'].value.length()",
+                        "lang": "painless"
+                    },
+                    "order": "asc"  # You can change the order here as needed
+                }}
+            ]
+        }
+
         bt.logging.trace(f"es_query: {es_query}")
+
 
         try:
             response = self.search_client.search(
