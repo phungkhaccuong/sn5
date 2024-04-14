@@ -193,7 +193,8 @@ class StructuredSearchEngine:
             return results
         except Exception as e:
             print(f"ERROR: {e}")
-            bt.logging.error("recall error...", e)
+            #bt.logging.error("recall error...", e)
+            bt.logging.error("recall error...", exc_info=True)  # Adjusted line
             return []
 
     def search_v1(self, search_query):
