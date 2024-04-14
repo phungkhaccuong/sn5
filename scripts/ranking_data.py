@@ -61,7 +61,8 @@ class CrawlJob():
         self.twitter_usernames = twitter_usernames
 
     def run(self, evaluator):
-        self.load_authors()
+        #self.load_authors()
+        self.twitter_usernames = ['HsakaTrades', 'Cbb0fe', '0xCaptainLevi', 'Vombatus_eth', 'HerroCrypto', 'dingalingts', 'HanweChang', '0xLawliette', 'blknoiz06', 'machibigbrother']
         bt.logging.info(f"load usernames successful")
         for i in range(0, 10):
             # get data from elas
